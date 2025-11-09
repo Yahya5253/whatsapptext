@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhatsApp Formatter — Minimal Prototype</title>
+  <style>
+    :root {
+      --bg-light: #f8f9fa;
+      --card-bg-light: #ffffff;
+      --text-dark-light: #1a1a1a;
+      --text-muted-light: #6c757d;
+      --placeholder-light: #adb5bd;
+      --border-light: #dee2e6;
+      --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.08);
+      --accent: #495057;
+      --accent-hover: #343a40;
+      --btn-bg-light: #f1f3f5;
+      --btn-hover-light: #e9ecef;
+
+      --bg-dark: #1a1a1a;
+      --card-bg-dark: #2d2d2d;
+      --text-dark-dark: #e9ecef;
+      --text-muted-dark: #adb5bd;
+      --placeholder-dark: #6c757d;
+      --border-dark: #495057;
+      --shadow-dark: 0 4px 12px rgba(0, 0, 0, 0.3);
+      --btn-bg-dark: #3a3a3a;
+      --btn-hover-dark: #4a4a4a;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg-light);
+      color: var(--text-dark-light);
+      line-height: 1.6;
+      padding: 16px;
+      min-height: 100vh;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: var(--bg-dark);
+        color: var(--text-dark-dark);
+      }
+    }
+
+    .main-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      width: 100%;
+      max-width: 100%;
+      margin: 0 auto;
+    }
+
+    .container {
+      width: 100%;
+    }
+
+    .sidebar {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text-dark-light);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      h1 {
+        color: var(--text-dark-dark);
+      }
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      color: var(--text-muted-light);
+      line-height: 1.5;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .subtitle {
+        color: var(--text-muted-dark);
+      }
+    }
+
+    .card {
+      background: var(--card-bg-light);
+      border-radius: 12px;
+      box-shadow: var(--shadow-light);
+      padding: 20px;
+      border: 1px solid var(--border-light);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .card {
+        background: var(--card-bg-dark);
+        box-shadow: var(--shadow-dark);
+        border-color: var(--border-dark);
+      }
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .toolbar {
+        border-bottom-color: var(--border-dark);
+      }
+    }
+
+    .toolbar button {
+      background: var(--btn-bg-light);
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      padding: 12px 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      color: var(--text-dark-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .toolbar button {
+        background: var(--btn-bg-dark);
+        border-color: var(--border-dark);
+        color: var(--text-dark-dark);
+      }
+    }
+
+    .toolbar button:active {
+      transform: scale(0.98);
+      background: var(--btn-hover-light);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .toolbar button:active {
+        background: var(--btn-hover-dark);
+      }
+    }
+
+    /* Special button colors */
+    #preview-btn {
+      background: #222326;
+      color: white;
+      border-color: #2E2F32;
+    }
+
+    #preview-btn:active {
+      background: #222326;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #preview-btn {
+        background: #222326;
+        border-color: #2E2F32;
+      }
+
+      #preview-btn:active {
+        background: #222326;
+      }
+    }
+
+    #clear-btn {
+      background: #222326;
+      color: white;
+      border-color: #2E2F32;
+    }
+
+    #clear-btn:active {
+      background: #222326;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #clear-btn {
+        background: #222326;
+        border-color: #2E2F32;
+      }
+
+      #clear-btn:active {
+        background: #222326;
+      }
+    }
+
+    #editor {
+      min-height: 240px;
+      padding: 16px;
+      border: 2px solid var(--border-light);
+      border-radius: 12px;
+      font-size: 1rem;
+      line-height: 1.7;
+      outline: none;
+      background: var(--card-bg-light);
+      color: var(--text-dark-light);
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      -webkit-user-select: text;
+      user-select: text;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #editor {
+        border-color: var(--border-dark);
+        background: var(--bg-dark);
+        color: var(--text-dark-dark);
+      }
+    }
+
+    #editor:focus {
+      border-color: var(--accent);
+    }
+
+    #editor.placeholder {
+      color: var(--placeholder-light);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #editor.placeholder {
+        color: var(--placeholder-dark);
+      }
+    }
+
+    #editor.preview-mode {
+      background: var(--bg-light);
+      border-style: dashed;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #editor.preview-mode {
+        background: var(--card-bg-dark);
+      }
+    }
+
+    .actions {
+      margin-top: 16px;
+      display: flex;
+      gap: 10px;
+      flex-direction: column;
+    }
+
+    .copy-btn {
+      width: 100%;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 14px 24px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .copy-btn:active {
+      transform: scale(0.98);
+      background: var(--accent-hover);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--text-dark-light);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 10px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+      opacity: 0;
+      transition: all 0.3s ease;
+      pointer-events: none;
+      z-index: 1000;
+      font-weight: 500;
+      font-size: 0.9rem;
+      max-width: 90%;
+      text-align: center;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .toast {
+        background: var(--card-bg-dark);
+        border: 1px solid var(--border-dark);
+      }
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .shortcuts {
+      background: var(--card-bg-light);
+      border-radius: 12px;
+      box-shadow: var(--shadow-light);
+      padding: 20px;
+      border: 1px solid var(--border-light);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .shortcuts {
+        background: var(--card-bg-dark);
+        box-shadow: var(--shadow-dark);
+        border-color: var(--border-dark);
+      }
+    }
+
+    .shortcuts h3 {
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 14px;
+      color: var(--text-dark-light);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .shortcuts h3 {
+        color: var(--text-dark-dark);
+      }
+    }
+
+    .shortcuts-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      font-size: 0.85rem;
+      color: var(--text-muted-light);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .shortcuts-grid {
+        color: var(--text-muted-dark);
+      }
+    }
+
+    .shortcut-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+    }
+
+    .shortcut-key {
+      background: var(--btn-bg-light);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.75rem;
+      border: 1px solid var(--border-light);
+      white-space: nowrap;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .shortcut-key {
+        background: var(--btn-bg-dark);
+        border-color: var(--border-dark);
+      }
+    }
+
+    .sidebar-footer {
+      background: var(--card-bg-light);
+      border-radius: 12px;
+      box-shadow: var(--shadow-light);
+      padding: 20px;
+      border: 1px solid var(--border-light);
+      font-size: 0.85rem;
+      color: var(--text-muted-light);
+      line-height: 1.6;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .sidebar-footer {
+        background: var(--card-bg-dark);
+        box-shadow: var(--shadow-dark);
+        border-color: var(--border-dark);
+        color: var(--text-muted-dark);
+      }
+    }
+
+    .sidebar-footer h3 {
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--text-dark-light);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .sidebar-footer h3 {
+        color: var(--text-dark-dark);
+      }
+    }
+
+    .sidebar-footer p {
+      margin-bottom: 10px;
+    }
+
+    .sidebar-footer p:last-child {
+      margin-bottom: 0;
+    }
+
+    .sidebar-footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .sidebar-footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Rich text preview styles */
+    #editor strong {
+      font-weight: 700;
+    }
+
+    #editor em {
+      font-style: italic;
+    }
+
+    #editor del {
+      text-decoration: line-through;
+    }
+
+    #editor code {
+      background: var(--btn-bg-light);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #editor code {
+        background: var(--btn-bg-dark);
+      }
+    }
+
+    #editor pre {
+      background: var(--btn-bg-light);
+      padding: 12px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 8px 0;
+      border: 1px solid var(--border-light);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #editor pre {
+        background: var(--btn-bg-dark);
+        border-color: var(--border-dark);
+      }
+    }
+
+    #editor pre code {
+      background: none;
+      padding: 0;
+    }
+
+    /* Tablet and up */
+    @media (min-width: 768px) {
+      body {
+        padding: 24px;
+      }
+
+      .main-wrapper {
+        gap: 24px;
+      }
+
+      h1 {
+        font-size: 1.75rem;
+      }
+
+      .subtitle {
+        font-size: 0.95rem;
+      }
+
+      .card {
+        padding: 24px;
+      }
+
+      .toolbar {
+        grid-template-columns: repeat(6, 1fr);
+        gap: 10px;
+      }
+
+      .toolbar button {
+        padding: 10px 12px;
+        font-size: 0.9rem;
+      }
+
+      #editor {
+        min-height: 280px;
+      }
+
+      .actions {
+        flex-direction: row;
+      }
+
+      .copy-btn {
+        width: auto;
+        flex: 1;
+        min-width: 200px;
+      }
+
+      .shortcuts {
+        padding: 24px;
+      }
+
+      .sidebar-footer {
+        padding: 24px;
+      }
+    }
+
+    /* Desktop and up */
+    @media (min-width: 1024px) {
+      body {
+        padding: 32px;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+      }
+
+      .main-wrapper {
+        flex-direction: row;
+        gap: 32px;
+        max-width: 1200px;
+        align-items: flex-start;
+      }
+
+      .container {
+        flex: 1;
+        max-width: 720px;
+      }
+
+      .sidebar {
+        width: 320px;
+        position: sticky;
+        top: 32px;
+        flex-shrink: 0;
+      }
+
+      .sidebar .shortcuts,
+      .sidebar .sidebar-footer {
+        margin-bottom: 0;
+      }
+
+      .toast {
+        bottom: 32px;
+      }
+
+      .copy-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(73, 80, 87, 0.3);
+      }
+
+      .copy-btn:active {
+        transform: translateY(0);
+      }
+
+      .toolbar button:hover {
+        background: var(--btn-hover-light);
+        transform: translateY(-1px);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .toolbar button:hover {
+          background: var(--btn-hover-dark);
+        }
+      }
+
+      .toolbar button:active {
+        transform: translateY(0);
+      }
+
+      #preview-btn:hover {
+        background: #222326;
+        transform: translateY(-1px);
+      }
+
+      #clear-btn:hover {
+        background: #222326;
+        transform: translateY(-1px);
+      }
+    }
+
+    /* Large desktop */
+    @media (min-width: 1280px) {
+      .sidebar {
+        width: 360px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="main-wrapper">
+    <div class="container">
+      <header>
+        <h1>WhatsApp Formatter</h1>
+        <p class="subtitle">Format text for WhatsApp with bold, italic, strikethrough, and code</p>
+      </header>
+
+      <div class="card">
+        <div class="toolbar" role="toolbar" aria-label="Formatting toolbar">
+          <button id="bold-btn" aria-label="Bold (Ctrl+B)" title="Bold (Ctrl+B)">
+            Bold
+          </button>
+          <button id="italic-btn" aria-label="Italic (Ctrl+I)" title="Italic (Ctrl+I)">
+            Italic
+          </button>
+          <button id="strike-btn" aria-label="Strikethrough (Alt+S)" title="Strikethrough (Alt+S)">
+            Strike
+          </button>
+          <button id="code-btn" aria-label="Inline Code" title="Inline Code">
+            Code
+          </button>
+          <button id="clear-btn" aria-label="Clear All" title="Clear All">
+            Clear
+          </button>
+          <button id="preview-btn" aria-label="Toggle Preview (Shift+P)" title="Toggle Preview (Shift+P)">
+            Preview
+          </button>
+        </div>
+
+        <div 
+          id="editor" 
+          contenteditable="true" 
+          role="textbox" 
+          aria-label="Text editor"
+          aria-multiline="true"
+          spellcheck="true"
+          class="placeholder"
+        >Start typing or paste your text here...
+
+Try selecting text and clicking the formatting buttons above, or use keyboard shortcuts.
+
+Click "Preview" to see how it will look in WhatsApp!</div>
+
+        <div class="actions">
+          <button class="copy-btn" id="copy-btn" aria-label="Copy formatted text to clipboard">
+            Copy for WhatsApp
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <aside class="sidebar">
+      <div class="shortcuts">
+        <h3>Keyboard Shortcuts</h3>
+        <div class="shortcuts-grid">
+          <div class="shortcut-item">
+            <span>Bold</span>
+            <span class="shortcut-key">Ctrl+B</span>
+          </div>
+          <div class="shortcut-item">
+            <span>Italic</span>
+            <span class="shortcut-key">Ctrl+I</span>
+          </div>
+          <div class="shortcut-item">
+            <span>Strikethrough</span>
+            <span class="shortcut-key">Alt+S</span>
+          </div>
+          <div class="shortcut-item">
+            <span>Copy</span>
+            <span class="shortcut-key">Ctrl+Enter</span>
+          </div>
+          <div class="shortcut-item">
+            <span>Preview</span>
+            <span class="shortcut-key">Shift+P</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <h3>About</h3>
+        <p><strong>MIT License</strong> © 2025 Yahya B.</p>
+        <p>Educational demo project</p>
+        <p style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-light);">
+          No data is stored or transmitted — everything runs locally in your browser
+        </p>
+      </div>
+    </aside>
+  </div>
+
+  <div id="toast" class="toast" role="alert" aria-live="polite"></div>
+
+  <script>
+    // State management
+    let isPreviewMode = false;
+    let savedPlainText = '';
+    const placeholderText = `Start typing or paste your text here...
+
+Try selecting text and clicking the formatting buttons above, or use keyboard shortcuts.
+
+Click "Preview" to see how it will look in WhatsApp!`;
+
+    // DOM elements
+    const editor = document.getElementById('editor');
+    const boldBtn = document.getElementById('bold-btn');
+    const italicBtn = document.getElementById('italic-btn');
+    const strikeBtn = document.getElementById('strike-btn');
+    const codeBtn = document.getElementById('code-btn');
+    const clearBtn = document.getElementById('clear-btn');
+    const previewBtn = document.getElementById('preview-btn');
+    const copyBtn = document.getElementById('copy-btn');
+    const toast = document.getElementById('toast');
+
+    // Initialize
+    function init() {
+      // Remove placeholder on first input
+      editor.addEventListener('input', handleInput);
+      editor.addEventListener('focus', handleFocus);
+      editor.addEventListener('blur', handleBlur);
+      editor.addEventListener('paste', handlePaste);
+      editor.addEventListener('keydown', handleKeydown);
+
+      // Toolbar buttons
+      boldBtn.addEventListener('click', () => applyFormat('*', '*'));
+      italicBtn.addEventListener('click', () => applyFormat('_', '_'));
+      strikeBtn.addEventListener('click', () => applyFormat('~', '~'));
+      codeBtn.addEventListener('click', () => applyFormat('`', '`'));
+      clearBtn.addEventListener('click', clearEditor);
+      previewBtn.addEventListener('click', togglePreview);
+      copyBtn.addEventListener('click', copyToClipboard);
+    }
+
+    function handleInput() {
+      const text = editor.innerText.trim();
+      if (text && text !== placeholderText) {
+        editor.classList.remove('placeholder');
+      } else if (!text) {
+        editor.classList.add('placeholder');
+      }
+    }
+
+    function handleFocus() {
+      if (editor.innerText.trim() === placeholderText) {
+        editor.innerText = '';
+        editor.classList.remove('placeholder');
+      }
+    }
+
+    function handleBlur() {
+      if (!editor.innerText.trim()) {
+        editor.innerText = placeholderText;
+        editor.classList.add('placeholder');
+      }
+    }
+
+    function handlePaste(e) {
+      e.preventDefault();
+      const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+      document.execCommand('insertText', false, text);
+    }
+
+    function handleKeydown(e) {
+      const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+      const ctrlKey = isMac ? e.metaKey : e.ctrlKey;
+
+      // Ctrl/Cmd+B → Bold
+      if (ctrlKey && e.key === 'b') {
+        e.preventDefault();
+        applyFormat('*', '*');
+      }
+      // Ctrl/Cmd+I → Italic
+      else if (ctrlKey && e.key === 'i') {
+        e.preventDefault();
+        applyFormat('_', '_');
+      }
+      // Alt+S → Strikethrough
+      else if (e.altKey && e.key === 's') {
+        e.preventDefault();
+        applyFormat('~', '~');
+      }
+      // Ctrl/Cmd+Enter → Copy
+      else if (ctrlKey && e.key === 'Enter') {
+        e.preventDefault();
+        copyToClipboard();
+      }
+      // Shift+P → Preview
+      else if (e.shiftKey && e.key === 'P') {
+        e.preventDefault();
+        togglePreview();
+      }
+    }
+
+    function applyFormat(prefix, suffix) {
+      if (isPreviewMode) return;
+
+      const selection = window.getSelection();
+      if (!selection.rangeCount) return;
+
+      const range = selection.getRangeAt(0);
+      const selectedText = range.toString();
+
+      if (!selectedText) {
+        showToast('Please select some text first');
+        return;
+      }
+
+      const formattedText = prefix + selectedText + suffix;
+      range.deleteContents();
+      range.insertNode(document.createTextNode(formattedText));
+
+      // Move cursor after inserted text
+      range.setStartAfter(range.endContainer);
+      range.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(range);
+
+      editor.focus();
+    }
+
+    function clearEditor() {
+      if (confirm('Clear all text?')) {
+        editor.innerText = placeholderText;
+        editor.classList.add('placeholder');
+        isPreviewMode = false;
+        previewBtn.textContent = 'Preview';
+        editor.contentEditable = 'true';
+        editor.classList.remove('preview-mode');
+        editor.focus();
+      }
+    }
+
+    function togglePreview() {
+      if (!isPreviewMode) {
+        // Enter preview mode
+        const plainText = getPlainText();
+        if (!plainText || plainText === placeholderText) {
+          showToast('Nothing to preview yet');
+          return;
+        }
+
+        savedPlainText = plainText;
+        const htmlContent = whatsappToHtml(plainText);
+
+        editor.innerHTML = htmlContent;
+        editor.contentEditable = 'false';
+        editor.classList.add('preview-mode');
+        previewBtn.textContent = 'Edit';
+        isPreviewMode = true;
+      } else {
+        // Return to edit mode
+        editor.innerHTML = '';
+        editor.innerText = savedPlainText;
+        editor.contentEditable = 'true';
+        editor.classList.remove('preview-mode');
+        editor.classList.remove('placeholder');
+        previewBtn.textContent = 'Preview';
+        isPreviewMode = false;
+        editor.focus();
+      }
+    }
+
+    function getPlainText() {
+      if (isPreviewMode) {
+        return savedPlainText;
+      }
+      const text = editor.innerText;
+      return text === placeholderText ? '' : text;
+    }
+
+    function whatsappToHtml(text) {
+      // Escape HTML first
+      let html = text
+        .replace(/&/g, '&')
+        .replace(/</g, '<')
+        .replace(/>/g, '>');
+
+      // Code blocks (must be processed first)
+      html = html.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+
+      // Inline code
+      html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+      // Bold
+      html = html.replace(/\*([^*]+)\*/g, '<strong>$1</strong>');
+
+      // Italic
+      html = html.replace(/_([^_]+)_/g, '<em>$1</em>');
+
+      // Strikethrough
+      html = html.replace(/~([^~]+)~/g, '<del>$1</del>');
+
+      // Preserve line breaks
+      html = html.replace(/\n/g, '<br>');
+
+      return html;
+    }
+
+    function copyToClipboard() {
+      const text = getPlainText();
+      if (!text) {
+        showToast('Nothing to copy');
+        return;
+      }
+
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('Copied to clipboard');
+      }).catch(() => {
+        // Fallback for older browsers
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        showToast('Copied to clipboard');
+      });
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    // Start the app
+    init();
+  </script>
+</body>
+</html>
