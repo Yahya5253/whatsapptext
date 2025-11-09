@@ -6,6 +6,7 @@
   <title>WhatsApp Formatter — Minimal Prototype</title>
   <style>
     :root {
+      --link-blue: #3791db; /* a modern, accessible light blue */
       --bg-light: #f8f9fa;
       --card-bg-light: #ffffff;
       --text-dark-light: #1a1a1a;
@@ -435,13 +436,17 @@
     }
 
     .sidebar-footer a {
-      color: var(--accent);
-      text-decoration: none;
-    }
+  color: var(--link-blue);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
 
-    .sidebar-footer a:hover {
-      text-decoration: underline;
-    }
+.sidebar-footer a:hover {
+  color: #2b5c91; /* A slightly deeper blue or underline if you prefer */
+  text-decoration: underline;
+}
+
 
     /* Rich text preview styles */
     #editor strong {
@@ -705,14 +710,20 @@ Click "Preview" to see how it will look in WhatsApp!</div>
         </div>
       </div>
 
-      <div class="sidebar-footer">
-        <h3>About</h3>
-        <p><strong>MIT License</strong> © 2025 Yahya B.</p>
-        <p>Educational demo project</p>
-        <p style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-light);">
-          No data is stored or transmitted — everything runs locally in your browser
-        </p>
-      </div>
+  <div class="sidebar-footer">
+    <h3>About</h3>
+    <p>
+        <strong>MIT License</strong> © 2025 
+        <a href="https://www.linkedin.com/in/yahya-bandukwala/" target="_blank" rel="noopener">
+            Yahya Bandukwala
+        </a>
+    </p>
+    <p>Educational demo project</p>
+    <p style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-light);">
+      No data is stored or transmitted — everything runs locally in your browser
+    </p>
+</div>
+
     </aside>
   </div>
 
